@@ -29,6 +29,25 @@ const ScrollTrack = () => {
         })),
     [],
   );
+  const pages = useMemo(
+    () => [
+      {
+        id: 'cover',
+        type: 'cover',
+        title: ' Roshan Memory Book',
+        subtitle: 'A Love & Passion Memory Book',
+      },
+      ...memories.map((memory) => ({ ...memory, type: 'photo' })),
+      {
+        id: 'final-note',
+        type: 'final',
+        title: 'Happy 21st Birthday',
+        message:
+          'Happy Birthday to a truly one-of-a-kind friend. Looking through these photos made me realize how many great times weve had. Im so grateful for our friendship and cant wait to see what this next year brings for you',
+      },
+    ],
+    [memories],
+  );
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -40,7 +59,7 @@ const ScrollTrack = () => {
   };
   const goNext = () => {
     setDirection(1);
-    setCurrentIndex((i) => (i < memories.length - 1 ? i + 1 : i));
+    setCurrentIndex((i) => (i < pages.length - 1 ? i + 1 : i));
   };
 
   if (memories.length === 0) {
@@ -52,15 +71,15 @@ const ScrollTrack = () => {
     );
   }
 
-  const active = memories[currentIndex];
+  const active = pages[currentIndex];
+  const isCover = active.type === 'cover';
+  const isFinal = active.type === 'final';
 
   return (
     <section className="book-shell">
       <div className="book-header">
         <span className="book-chip">21st Birthday Edition</span>
-        <p>
-          Celebrating her special 21st - Page {currentIndex + 1} of {memories.length}
-        </p>
+       
       </div>
 
       <div className="book-stage">
@@ -68,12 +87,33 @@ const ScrollTrack = () => {
           Prev
         </button>
 
-        <div className="book-page" onClick={() => setSelectedImg(active)}>
+        <div className="book-page" onClick={() => !isCover && !isFinal && setSelectedImg(active)}>
           <div
             key={active.id}
             className={`page-transition ${direction > 0 ? 'turn-forward' : 'turn-backward'}`}
           >
-            <AlbumCard item={active} />
+            {isCover ? (
+              <article className="cover-page">
+                <div className="cover-inner">
+                  <p className="cover-kicker">21st Birthday</p>
+                  <h1>{active.title}</h1>
+                  <p className="cover-subtitle">{active.subtitle}</p>
+                  <div className="cover-divider" />
+                  <p className="cover-note">Turn the page to start the memories.</p>
+                </div>
+              </article>
+            ) : isFinal ? (
+              <article className="final-page">
+                <div className="final-inner">
+                  <p className="final-kicker">A Note From The Heart</p>
+                  <h2>{active.title}</h2>
+                  <p className="final-message">{active.message}</p>
+                  <p className="final-sign">Written by Ahmed Abdelgelil</p>
+                </div>
+              </article>
+            ) : (
+              <AlbumCard item={active} />
+            )}
           </div>
         </div>
 
@@ -81,7 +121,7 @@ const ScrollTrack = () => {
           type="button"
           className="nav-btn"
           onClick={goNext}
-          disabled={currentIndex === memories.length - 1}
+          disabled={currentIndex === pages.length - 1}
         >
           Next
         </button>
